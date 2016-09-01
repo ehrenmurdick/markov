@@ -1,6 +1,8 @@
 require "sequel"
 require "trie"
+require 'lingua/stemmer'
 
+Stemmer= Lingua::Stemmer.new(:language => "en")
 
 Whitelist = Trie.new
 
@@ -25,7 +27,7 @@ class Transition < Sequel::Model
     lines.each do |line|
       input = clean(line).split
       input.delete_if do |w|
-        !Whitelist.has_key?(w)
+        !Whitelist.has_key?(Stemmer.stem(w))
       end
 
       input.each_with_index do |right, i|
@@ -38,9 +40,19 @@ class Transition < Sequel::Model
 
       t = find_or_create(left: input.last, right: nil)
       t.increment!
+      print '.'
     end
 
-    find(left: nil, right: nil).destroy
+    t = find(left: nil, right: nil)
+    t.destroy if t
+  end
+
+  def self.next_set(word)
+    where(left: word).all
+  end
+
+  def self.next_with_prob(word)
+    all_t = next_set(word)
   end
 
   def increment!
@@ -58,12 +70,17 @@ case ARGV[0]
 when "train"
   puts "Loading whitelist!"
   File.readlines("/usr/share/dict/words").each do |word|
-    Whitelist.add word.strip.downcase
+    Whitelist.add Stemmer.stem(word.strip.downcase)
   end
   puts "Done!"
 
   while input = $stdin.gets
     Transition.train(input)
+  end
+when 'next'
+  w = ARGV[1]
+  Transition.next_set(w.strip).each do |t|
+    p t
   end
 when "stats"
   puts Transition.count
