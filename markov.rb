@@ -53,6 +53,11 @@ class Transition < Sequel::Model
 
   def self.next_with_prob(word)
     all_t = next_set(word)
+    sum = all_t.inject(0) { |a, b| a + b.count }
+    probs = all_t.map do |t|
+      t.count / sum.to_f
+    end
+    all_t.zip(probs)
   end
 
   def increment!
@@ -79,7 +84,7 @@ when "train"
   end
 when 'next'
   w = ARGV[1]
-  Transition.next_set(w.strip).each do |t|
+  Transition.next_with_prob(w.strip).each do |t|
     p t
   end
 when "stats"
