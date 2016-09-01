@@ -50,4 +50,8 @@ when "train"
   Transition.train(input)
 when "stats"
   puts Transition.count
+when "debug"
+  Transition.all.each do |t|
+    p t
+  end
 end
