@@ -1,3 +1,2 @@
 Use rbenv to pick a Ruby version for your application and guarantee that your development environment matches production
 Groom your app’s Ruby environment with rbenv.
-
