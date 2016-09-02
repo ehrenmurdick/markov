@@ -7,7 +7,7 @@ Stemmer= Lingua::Stemmer.new(:language => "en")
 
 Whitelist = Trie.new
 
-DB = Sequel.sqlite('model.sqlite')
+DB = Sequel.sqlite(ARGV[0])
 
 DB.create_table? :transitions do
   primary_key :id
@@ -99,7 +99,7 @@ class Transition < Sequel::Model
   end
 end
 
-case ARGV[0]
+case ARGV[1]
 when "train"
   puts "Loading whitelist!"
   File.readlines("/usr/share/dict/words").each do |word|
@@ -111,7 +111,7 @@ when "train"
     Transition.train(Sanitize.fragment(input))
   end
 when 'next'
-  w = ARGV[1]
+  w = ARGV[2]
   Transition.next_with_prob(w.strip).each do |t|
     p t
   end
