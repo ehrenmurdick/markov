@@ -1,6 +1,7 @@
 require "sequel"
 require "trie"
 require 'lingua/stemmer'
+require 'sanitize'
 
 Stemmer= Lingua::Stemmer.new(:language => "en")
 
@@ -60,6 +61,31 @@ class Transition < Sequel::Model
     all_t.zip(probs)
   end
 
+  def self.generate
+    start = nil
+    words = []
+    begin
+      values = [0]
+      set = next_set(start)
+      set.each_with_index do |a, i|
+        values << a.count + values[i]
+      end
+      ranges = []
+      values[0..-2].each_with_index do |a, i|
+        ranges << (values[i]..values[i+1])
+      end
+
+      r = rand(ranges.last.last + 1)
+      i = ranges.index do |v|
+        v === r
+      end
+
+      words << start
+      start = set[i].right
+    end until start == nil
+    words.join(' ')
+  end
+
   def increment!
     self.count ||= 0
     self.count += 1
@@ -80,7 +106,7 @@ when "train"
   puts "Done!"
 
   while input = $stdin.gets
-    Transition.train(input)
+    Transition.train(Sanitize.fragment(input))
   end
 when 'next'
   w = ARGV[1]
@@ -89,6 +115,8 @@ when 'next'
   end
 when "stats"
   puts Transition.count
+when 'generate'
+  puts Transition.generate
 when "debug"
   Transition.all.each do |t|
     p t
