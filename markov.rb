@@ -118,11 +118,7 @@ when 'next'
 when "stats"
   puts Transition.count
 when 'generate'
-  sentences = []
-  rand(10).times do
-    sentences << Transition.generate
-  end
-  puts sentences.join ' '
+  puts Transition.generate
 when "debug"
   Transition.all.each do |t|
     p t
