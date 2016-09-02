@@ -1,3 +1,4 @@
 model.sqlite
 *.sqlite
 *.sqlite-journal
+error.log
