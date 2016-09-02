@@ -1,0 +1,30 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    crass (1.0.2)
+    mini_portile2 (2.1.0)
+    nokogiri (1.6.8)
+      mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
+    nokogumbo (1.4.9)
+      nokogiri
+    pkg-config (1.1.7)
+    ruby-stemmer (0.9.6)
+    sanitize (4.2.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.4.4)
+      nokogumbo (~> 1.4.1)
+    sequel (4.38.0)
+    trie (0.0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  ruby-stemmer
+  sanitize
+  sequel
+  trie
+
+BUNDLED WITH
+   1.12.5
