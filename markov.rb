@@ -83,7 +83,9 @@ class Transition < Sequel::Model
       words << start
       start = set[i].right
     end until start == nil
-    words.join(' ')
+    sentence = words.join(' ')
+    sentence[1] = sentence[1].upcase
+    sentence << '.'
   end
 
   def increment!
@@ -116,7 +118,11 @@ when 'next'
 when "stats"
   puts Transition.count
 when 'generate'
-  puts Transition.generate
+  sentences = []
+  rand(10).times do
+    sentences << Transition.generate
+  end
+  puts sentences.join ' '
 when "debug"
   Transition.all.each do |t|
     p t
