@@ -1,12 +1,10 @@
-[
-  {
-    "nodes": [
-      { "id": "A" },
-      { "id": "B" }
-    ],
+{
+  "nodes": [
+    { "id": "A" },
+    { "id": "B" }
+  ],
 
-    "links": [
-      { "source": "A", "target": "B", "value": 1 }
-    ]
-  }
-]
+  "links": [
+    { "source": "A", "target": "B", "value": 1 }
+  ]
+}
