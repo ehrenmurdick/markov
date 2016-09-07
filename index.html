@@ -11,14 +11,31 @@
 
 <svg width="960" height="600"></svg>
 
-<input id="words" type="text"/>
+
+<br />
+<input id="words" type="text" onkeypress="keypress()"/>
 <button>Add</button>
 
+<br />
+
+<a onclick="addme(this)">the quick brown fox</a><br />
+<a onclick="addme(this)">the fox is brown</a><br />
+<a onclick="addme(this)">what color is the fox</a><br />
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
 
 <script>
+
+function addme(a) {
+  document.getElementById("words").value = a.text;
+}
+
+function keypress() {
+  if (event.key == "Enter") {
+    addSentence();
+  }
+}
 
 var words = [];
 var transitions = [];
@@ -46,11 +63,14 @@ var nodes = svg.append("g")
 
 var node = nodes.selectAll("svg")
 
-d3.select("button").on("click", function(e) {
+d3.select("button").on("click", addSentence);
+function addSentence() {
   var str = document.getElementById("words").value;
   var list = _.reject(str.split(" "), function(w) {
     return w == "";
   });
+
+  document.getElementById("words").value = "";
 
   list.unshift("^");
   list.push("$");
@@ -81,7 +101,7 @@ d3.select("button").on("click", function(e) {
   });
 
   draw();
-});
+}
 
 function draw() {
   simulation
