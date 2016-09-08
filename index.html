@@ -37,7 +37,10 @@ function keypress() {
   }
 }
 
-var words = [];
+var words = [
+  {fx: 150, fy: 300, id: "^" },
+  {fx: 450, fy: 300, id: "$" }
+];
 var transitions = [];
 
 var svg = d3.select("svg"),
@@ -50,7 +53,7 @@ var linkForce = d3.forceLink()
 var simulation = d3.forceSimulation()
   .force("x", d3.forceX(300).strength(0.05))
   .force("y", d3.forceY(300).strength(0.05))
-  .force("charge", d3.forceManyBody().strength(-50))
+  .force("charge", d3.forceManyBody().strength(-30))
   .force("links", linkForce);
 
 
@@ -75,14 +78,31 @@ function addSentence() {
   list.unshift("^");
   list.push("$");
 
-  for(i in list) {
-    if(!_.find(words, function(w) { return w.id == list[i] })) {
-      words.push({ id: list[i], x: Math.random() * width, y: Math.random() * height });
-    }
-  }
-
   var transition;
+  var tsteps = [];
   _.reduce(list, function(a, b) {
+    tsteps.push([a, b]);
+    return b;
+  });
+  timer = setInterval(function() {
+    var x = tsteps.shift();
+
+    if (!x) {
+      clearInterval(timer);
+      return;
+    }
+
+    var a = x[0],
+        b = x[1];
+
+    if(!_.find(words, function(w) { return w.id == a })) {
+      words.push({ id: a, x: Math.random() * width, y: Math.random() * height });
+    }
+
+    if(!_.find(words, function(w) { return w.id == b })) {
+      words.push({ id: b, x: Math.random() * width, y: Math.random() * height });
+    }
+
     var allwords = _.pluck(words, "id");
     var sourceIdx = allwords.indexOf(a);
     var destIdx = allwords.indexOf(b);
@@ -95,10 +115,9 @@ function addSentence() {
         target: destIdx,
         value: 1
       });
+      draw();
     }
-
-    return b;
-  });
+  }, 500);
 
   draw();
 }
