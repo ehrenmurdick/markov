@@ -38,9 +38,10 @@ function keypress() {
 }
 
 var words = [
-  {fx: 150, fy: 300, id: "^" },
-  {fx: 450, fy: 300, id: "$" }
+  { fx: 150, fy: 300, id: "^" },
+  { fx: 900, fy: 300, id: "$" }
 ];
+
 var transitions = [];
 
 var svg = d3.select("svg"),
@@ -48,11 +49,11 @@ var svg = d3.select("svg"),
     height = svg.attr("height");
 
 var linkForce = d3.forceLink()
-  .distance(50);
+  .distance(38);
 
 var simulation = d3.forceSimulation()
-  .force("x", d3.forceX(300).strength(0.05))
-  .force("y", d3.forceY(300).strength(0.05))
+  .force("x", d3.forceX(300).strength(0.005))
+  .force("y", d3.forceY(300).strength(0.005))
   .force("charge", d3.forceManyBody().strength(-30))
   .force("links", linkForce);
 
@@ -117,6 +118,8 @@ function addSentence() {
       });
       draw();
     }
+
+    showWord(a);
   }, 500);
 
   draw();
@@ -134,7 +137,14 @@ function draw() {
     .enter()
     .append("circle")
     .attr("r", 5)
-    .attr("fill", "blue");
+    .attr("fill", function(d) {
+      if (d.id == "$") {
+        return "red";
+      } else if (d.id == "^") {
+        return "green";
+      }
+      return "blue";
+    });
 
   nodes.selectAll("text")
     .data(words)
@@ -143,15 +153,50 @@ function draw() {
     .attr("id", function(d) { return d.id })
     .text(function(d) { return d.id })
     .attr("text-anchor", "middle")
-    .attr("fill", "black");
+    .attr("fill", "black")
+    .attr("opacity", 0);
 
   links.selectAll("line")
     .data(transitions)
     .enter()
     .append("line");
 
+  var drag = d3.drag()
+    .on("start", dragStart)
+    .on("end", dragEnd)
+    .on("drag", dragged)
+    .subject(function (d) {
+      var n = simulation.find(d.x, d.y);
+      return d;
+    });
+
+  nodes.selectAll("circle")
+    .call(drag)
+    .on("mouseover", function(d) { showWord(d.id) });
+
   simulation.alpha(1.0);
   simulation.restart();
+}
+
+function showWord(w) {
+  var t = nodes.select("text#"+w);
+  t.attr("opacity", 1);
+  setTimeout(function() {
+    t.attr("opacity", 0);
+  }, 5000);
+}
+
+function dragEnd(d) {
+}
+
+function dragStart(d) {
+  simulation.restart();
+  simulation.alpha(1.0);
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
 }
 
 draw();
