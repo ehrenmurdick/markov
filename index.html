@@ -68,8 +68,10 @@ var nodes = svg.append("g")
 var node = nodes.selectAll("svg")
 
 d3.select("button").on("click", addSentence);
+
 function addSentence() {
   var str = document.getElementById("words").value;
+  str = str.toLowerCase().replace(/[^a-z ]/g, "");
   var list = _.reject(str.split(" "), function(w) {
     return w == "";
   });
@@ -211,7 +213,7 @@ function tick() {
     .attr("cx", function(d) { return d.x });
 
   links.selectAll("line")
-    .attr("stroke-width", function(d) { return d.value })
+    .attr("stroke-width", function(d) { return Math.min(9, d.value * 3); })
     .attr("x1", function(d) {
       return d.source.x;
     })
