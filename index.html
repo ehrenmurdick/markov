@@ -3,13 +3,23 @@
 <style>
 
 .links line {
-  stroke: #999;
   stroke-opacity: 0.6;
+  stroke: #333;
 }
 
 </style>
 
-<svg width="960" height="600"></svg>
+<svg width="960" height="600">
+  <defs>
+  <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
+  <stop offset="0%"   stop-color="#0f0"/>
+  <stop offset="100%" stop-color="#00f"/>
+  </linearGradient>
+  </defs>
+  <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="30" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z"/>
+    </marker>
+</svg>
 
 
 <br />
@@ -27,20 +37,15 @@
 
 <script>
 
-function addme(a) {
-  document.getElementById("words").value = a.text;
-}
 
-function keypress() {
-  if (event.key == "Enter") {
-    addSentence();
-  }
-}
+var speed = 500;
 
 var words = [
   { fx: 150, fy: 300, id: "^" },
   { fx: 900, fy: 300, id: "$" }
 ];
+
+var currentWord;
 
 var transitions = [];
 
@@ -68,6 +73,16 @@ var nodes = svg.append("g")
 var node = nodes.selectAll("svg")
 
 d3.select("button").on("click", addSentence);
+
+function addme(a) {
+  document.getElementById("words").value = a.text;
+}
+
+function keypress() {
+  if (event.key == "Enter") {
+    addSentence();
+  }
+}
 
 function addSentence() {
   var str = document.getElementById("words").value;
@@ -122,7 +137,7 @@ function addSentence() {
     }
 
     showWord(a);
-  }, 500);
+  }, speed);
 
   draw();
 }
@@ -140,7 +155,9 @@ function draw() {
     .append("circle")
     .attr("r", 5)
     .attr("fill", function(d) {
-      if (d.id == "$") {
+      if (d === currentWord) {
+        return "purple";
+      } else if (d.id == "$") {
         return "red";
       } else if (d.id == "^") {
         return "green";
@@ -161,7 +178,9 @@ function draw() {
   links.selectAll("line")
     .data(transitions)
     .enter()
-    .append("line");
+    .append("line")
+    .attr("stroke", "#333")
+    .attr("marker-end", "url(#triangle)");
 
   var drag = d3.drag()
     .on("start", dragStart)
@@ -181,11 +200,12 @@ function draw() {
 }
 
 function showWord(w) {
+  if (w === "^" || w == "$") return;
   var t = nodes.select("text#"+w);
   t.attr("opacity", 1);
   setTimeout(function() {
     t.attr("opacity", 0);
-  }, 5000);
+  }, speed * 10);
 }
 
 function dragEnd(d) {
@@ -201,7 +221,11 @@ function dragged(d) {
   d.fy = d3.event.y;
 }
 
-draw();
+function nextWordSetFor(word) {
+  return _.filter(transitions, function(t) {
+    return t.source.id === word;
+  });
+}
 
 function tick() {
   nodes.selectAll("text")
@@ -213,7 +237,7 @@ function tick() {
     .attr("cx", function(d) { return d.x });
 
   links.selectAll("line")
-    .attr("stroke-width", function(d) { return Math.min(9, d.value * 3); })
+    .attr("stroke-width", function(d) { return Math.min(6, d.value * 2); })
     .attr("x1", function(d) {
       return d.source.x;
     })
@@ -227,5 +251,13 @@ function tick() {
       return d.target.y + 10;
     });
 }
+
+
+function generateSentence() {
+  currentWord = _.find(words, function(w) { return w.id == "^"} );
+  draw();
+}
+
+draw();
 
 </script>
